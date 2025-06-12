@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Tag {
+public class Tag implements TagComponent{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -35,4 +35,9 @@ public class Tag {
 
     @ManyToMany(mappedBy = "tags")
     private Set<Bookmark> bookmarks = new HashSet<>();
+
+    @Override
+    public boolean hasChildren() {
+        return !children.isEmpty();
+    }
 }
