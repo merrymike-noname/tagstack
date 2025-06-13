@@ -13,8 +13,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Tag implements TagComponent{
+@Builder(toBuilder = true)
+public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,13 +31,11 @@ public class Tag implements TagComponent{
     private Tag parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Tag> children = new HashSet<>();
 
     @ManyToMany(mappedBy = "tags")
+    @Builder.Default
     private Set<Bookmark> bookmarks = new HashSet<>();
 
-    @Override
-    public boolean hasChildren() {
-        return !children.isEmpty();
-    }
 }

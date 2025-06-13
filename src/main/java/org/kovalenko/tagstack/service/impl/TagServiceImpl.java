@@ -50,6 +50,9 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagResponseDto create(TagRequestDto dto) {
+        if (dto.getParentId() != null && repository.findById(dto.getParentId()).isEmpty()) {
+            throw new IllegalArgumentException("parent tag with id " + dto.getParentId() + " not found");
+        }
         Tag tag = convertToEntity(dto);
         return convertToResponseDto(repository.save(tag));
     }
@@ -104,7 +107,7 @@ public class TagServiceImpl implements TagService {
     private Tag convertToEntity(TagRequestDto dto) {
         return Tag.builder()
                 .userId(dto.getUserId())
-                .name(dto.getName())
+                .name(dto.getName().toLowerCase())
                 .parent(dto.getParentId() != null ? repository.findById(dto.getParentId()).orElse(null) : null)
                 .build();
     }
