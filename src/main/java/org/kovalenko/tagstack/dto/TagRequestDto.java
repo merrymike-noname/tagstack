@@ -10,4 +10,5 @@ import lombok.*;
 public class TagRequestDto {
     private String name;
     private Integer parentId;
+    private Integer userId;
 }
