@@ -6,10 +6,10 @@ import org.kovalenko.tagstack.dto.TagResponseDto;
 import java.util.List;
 
 public interface TagService {
-    public List<TagResponseDto> getAll(Integer userId);
-    public List<TagResponseDto> getByName(String name, Integer userId);
-    public TagResponseDto getById(Integer id);
-    public TagResponseDto create(TagRequestDto dto);
-    public TagResponseDto update(TagRequestDto dto, Integer id);
-    public void delete(Integer id);
+    List<TagResponseDto> getAll(Integer userId);
+    List<TagResponseDto> getByName(String name, Integer userId);
+    TagResponseDto getById(Integer id);
+    TagResponseDto create(TagRequestDto dto);
+    TagResponseDto update(TagRequestDto dto, Integer id);
+    void delete(Integer id);
 }

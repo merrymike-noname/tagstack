@@ -1,6 +1,7 @@
 package org.kovalenko.tagstack.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "bookmark")
+@Table(name = "bookmarks")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -27,6 +28,7 @@ public class Bookmark {
     private Integer userId;
 
     @NotNull(message = "url should not be null")
+    @NotBlank(message = "url should not be blank")
     private String url;
 
     private String title;
@@ -42,6 +44,7 @@ public class Bookmark {
     private LocalDateTime updatedAt;
 
     @ManyToMany
+    @Builder.Default
     @JoinTable(
             name = "bookmark_tags",
             joinColumns = @JoinColumn(name = "bookmark_id"),
