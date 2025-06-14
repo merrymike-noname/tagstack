@@ -12,9 +12,7 @@ import org.kovalenko.tagstack.repository.TagRepository;
 import org.kovalenko.tagstack.service.BookmarkService;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -172,11 +170,13 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     private BookmarkResponseDto convertToResponseDto(Bookmark bookmark) {
-        Set<TagResponseDto> tagDtos = bookmark.getTags().stream()
-                .map(tag -> TagResponseDto.builder()
-                        .name(tag.getName())
-                        .build())
-                .collect(Collectors.toSet());
+//        Set<TagResponseDto> tagDtos = bookmark.getTags().stream()
+//                .map(tag -> TagResponseDto.builder()
+//                        .name(tag.getName())
+//                        .build())
+//                .collect(Collectors.toSet());
+
+        Set<TagResponseDto> tagDtos = getHierarchicalTags(bookmark.getTags());
 
         return BookmarkResponseDto.builder()
                 .url(bookmark.getUrl())
@@ -186,6 +186,88 @@ public class BookmarkServiceImpl implements BookmarkService {
                 .updatedAt(bookmark.getUpdatedAt())
                 .tags(tagDtos)
                 .build();
+    }
+
+    private Set<TagResponseDto> getHierarchicalTags(Set<Tag> tags) {
+        Set<TagResponseDto> result = new HashSet<>();
+        Map<Integer, Tag> processedRoots = new HashMap<>();
+
+        // For each tag directly associated with the bookmark
+        for (Tag tag : tags) {
+            // Find the root tag
+            Tag rootTag = findRootTag(tag);
+
+            // Skip if we've already processed this root
+            if (processedRoots.containsKey(rootTag.getId())) {
+                continue;
+            }
+
+            // Mark this root as processed
+            processedRoots.put(rootTag.getId(), rootTag);
+
+            // Build path from root to the bookmark's tag
+            TagResponseDto rootDto = buildPathToTag(rootTag, tag.getId());
+            result.add(rootDto);
+        }
+
+        return result;
+    }
+
+    /**
+     * Finds the root tag by traversing up the parent chain
+     */
+    private Tag findRootTag(Tag tag) {
+        Tag current = tag;
+        while (current.getParent() != null) {
+            current = current.getParent();
+        }
+        return current;
+    }
+
+    /**
+     * Builds a path from the root tag down to the target tag
+     * Only includes children that are on the path to the target tag
+     */
+    private TagResponseDto buildPathToTag(Tag currentTag, Integer targetTagId) {
+        // Create DTO for current tag
+        TagResponseDto dto = TagResponseDto.builder()
+                .name(currentTag.getName())
+                .children(new ArrayList<>())
+                .build();
+
+        // If this is the target tag, return without children
+        if (currentTag.getId().equals(targetTagId)) {
+            return dto;
+        }
+
+        // Find the child that leads to the target tag
+        for (Tag child : currentTag.getChildren()) {
+            // Check if the target is this child or a descendant of this child
+            if (isTagOrDescendant(child, targetTagId)) {
+                TagResponseDto childDto = buildPathToTag(child, targetTagId);
+                dto.getChildren().add(childDto);
+                break; // We only need the path to the target, not all children
+            }
+        }
+
+        return dto;
+    }
+
+    /**
+     * Checks if the given tag is the target tag or has the target tag as a descendant
+     */
+    private boolean isTagOrDescendant(Tag tag, Integer targetTagId) {
+        if (tag.getId().equals(targetTagId)) {
+            return true;
+        }
+
+        for (Tag child : tag.getChildren()) {
+            if (isTagOrDescendant(child, targetTagId)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Bookmark convertToEntity(BookmarkRequestDto dto, Integer userId) {
