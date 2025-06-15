@@ -8,8 +8,8 @@ import java.util.List;
 public interface TagService {
     List<TagResponseDto> getAll(Integer userId);
     List<TagResponseDto> getByName(String name, Integer userId);
-    TagResponseDto getById(Integer id);
-    TagResponseDto create(TagRequestDto dto);
-    TagResponseDto update(TagRequestDto dto, Integer id);
-    void delete(Integer id);
+    TagResponseDto getById(Integer id, Integer userId);
+    TagResponseDto create(TagRequestDto dto, Integer userId);
+    TagResponseDto update(TagRequestDto dto, Integer id, Integer userId);
+    void delete(Integer id, Integer userId);
 }

@@ -29,8 +29,10 @@ public class TagController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TagResponseDto> getTagById(@PathVariable Integer id) {
-        TagResponseDto tag = tagService.getById(id);
+    public ResponseEntity<TagResponseDto> getTagById(
+            @PathVariable Integer id,
+            @RequestParam Integer userId) {
+        TagResponseDto tag = tagService.getById(id, userId);
         if (tag == null) {
             return ResponseEntity.notFound().build();
         }
@@ -38,17 +40,20 @@ public class TagController {
     }
 
     @PostMapping
-    public ResponseEntity<TagResponseDto> createTag(@RequestBody TagRequestDto tagRequest) {
-        TagResponseDto createdTag = tagService.create(tagRequest);
+    public ResponseEntity<TagResponseDto> createTag(
+            @RequestBody TagRequestDto tagRequest,
+            @RequestParam Integer userId) {
+        TagResponseDto createdTag = tagService.create(tagRequest, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTag);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TagResponseDto> updateTag(
             @PathVariable Integer id,
-            @RequestBody TagRequestDto tagRequest) {
+            @RequestBody TagRequestDto tagRequest,
+            @RequestParam Integer userId) {
         try {
-            TagResponseDto updatedTag = tagService.update(tagRequest, id);
+            TagResponseDto updatedTag = tagService.update(tagRequest, id, userId);
             return ResponseEntity.ok(updatedTag);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -56,9 +61,11 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTag(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteTag(
+            @PathVariable Integer id,
+            @RequestParam Integer userId) {
         try {
-            tagService.delete(id);
+            tagService.delete(id, userId);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
